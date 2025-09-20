@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  supabase-db:
+    image: supabase/postgres:15.6.1.116
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST: localhost
+    volumes:
+      - ./supabase/seed.sql:/docker-entrypoint-initdb.d/seed.sql
+    command: >
+      postgres -c wal_level=logical -c max_wal_senders=10 -c max_replication_slots=10
+
+  supabase:
+    image: supabase/supabase:latest
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_HOST: supabase-db
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      JWT_SECRET: your-super-secret-jwt-token-with-at-least-32-characters-long
+      ANON_KEY: your-anon-key
+      SERVICE_ROLE_KEY: your-service-role-key
+    depends_on:
+      - supabase-db
