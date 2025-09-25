@@ -78,7 +78,7 @@ export const PhotoCard: React.FC<PhotoCardProps> = ({
     <motion.div
       ref={ref}
       className={cn(
-        "relative overflow-hidden rounded-lg bg-muted cursor-pointer group",
+        "photo-grid-item relative cursor-pointer group",
         isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-background",
         className
       )}
@@ -95,7 +95,7 @@ export const PhotoCard: React.FC<PhotoCardProps> = ({
           src={photo.thumbnailUrl}
           alt={photo.filename}
           className={cn(
-            "w-full h-full object-cover transition-opacity duration-300",
+            "photo-grid-image",
             isLoaded ? "opacity-100" : "opacity-0"
           )}
           onLoad={() => setIsLoaded(true)}

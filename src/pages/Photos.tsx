@@ -7,13 +7,23 @@ import { UploadModal } from '@/components/Upload/UploadModal';
 import { usePhotoStore } from '@/store/photoStore';
 import { Photo } from '@/types/photo';
 
+// Generate colored placeholder images for demo
+const generatePlaceholder = (color: string, text: string) => {
+  return `data:image/svg+xml;base64,${btoa(`
+    <svg width="300" height="300" xmlns="http://www.w3.org/2000/svg">
+      <rect width="300" height="300" fill="${color}"/>
+      <text x="150" y="150" font-family="Arial" font-size="16" fill="white" text-anchor="middle" alignment-baseline="middle">${text}</text>
+    </svg>
+  `)}`;
+};
+
 // Mock data for demonstration - in a real app, this would come from an API
 const mockPhotos: Photo[] = [
   {
     id: '1',
     filename: 'sunset-beach.jpg',
-    url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300',
+    url: generatePlaceholder('#FF6B6B', 'Sunset Beach'),
+    thumbnailUrl: generatePlaceholder('#FF6B6B', 'Sunset Beach'),
     size: 2048000,
     dimensions: { width: 4000, height: 3000 },
     createdAt: new Date('2024-01-15'),
@@ -25,8 +35,8 @@ const mockPhotos: Photo[] = [
   {
     id: '2',
     filename: 'mountain-lake.jpg',
-    url: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=800',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=300',
+    url: generatePlaceholder('#4ECDC4', 'Mountain Lake'),
+    thumbnailUrl: generatePlaceholder('#4ECDC4', 'Mountain Lake'),
     size: 1856000,
     dimensions: { width: 3840, height: 2560 },
     createdAt: new Date('2024-01-14'),
@@ -38,8 +48,8 @@ const mockPhotos: Photo[] = [
   {
     id: '3',
     filename: 'city-night.jpg',
-    url: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=800',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=300',
+    url: generatePlaceholder('#45B7D1', 'City Night'),
+    thumbnailUrl: generatePlaceholder('#45B7D1', 'City Night'),
     size: 2240000,
     dimensions: { width: 4200, height: 2800 },
     createdAt: new Date('2024-01-13'),
@@ -51,8 +61,8 @@ const mockPhotos: Photo[] = [
   {
     id: '4',
     filename: 'forest-path.jpg',
-    url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=300',
+    url: generatePlaceholder('#96CEB4', 'Forest Path'),
+    thumbnailUrl: generatePlaceholder('#96CEB4', 'Forest Path'),
     size: 1920000,
     dimensions: { width: 3600, height: 2400 },
     createdAt: new Date('2024-01-12'),
@@ -64,8 +74,8 @@ const mockPhotos: Photo[] = [
   {
     id: '5',
     filename: 'ocean-waves.jpg',
-    url: 'https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=300',
+    url: generatePlaceholder('#74B9FF', 'Ocean Waves'),
+    thumbnailUrl: generatePlaceholder('#74B9FF', 'Ocean Waves'),
     size: 2304000,
     dimensions: { width: 4000, height: 3000 },
     createdAt: new Date('2024-01-11'),
@@ -77,8 +87,8 @@ const mockPhotos: Photo[] = [
   {
     id: '6',
     filename: 'desert-dunes.jpg',
-    url: 'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=300',
+    url: generatePlaceholder('#FDCB6E', 'Desert Dunes'),
+    thumbnailUrl: generatePlaceholder('#FDCB6E', 'Desert Dunes'),
     size: 2112000,
     dimensions: { width: 3800, height: 2533 },
     createdAt: new Date('2024-01-10'),
