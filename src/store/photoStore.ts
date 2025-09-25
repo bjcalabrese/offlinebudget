@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { Photo, PhotoFilter, ViewMode, GridSize, UploadProgress } from '@/types/photo';
+import { photoDatabase } from '@/services/database';
 
 interface PhotoStore {
   // State
@@ -13,11 +14,12 @@ interface PhotoStore {
   loading: boolean;
   
   // Actions
+  loadPhotos: () => Promise<void>;
   setPhotos: (photos: Photo[]) => void;
-  addPhotos: (photos: Photo[]) => void;
-  updatePhoto: (id: string, updates: Partial<Photo>) => void;
-  deletePhoto: (id: string) => void;
-  deletePhotos: (ids: string[]) => void;
+  addPhotos: (photos: Photo[]) => Promise<void>;
+  updatePhoto: (id: string, updates: Partial<Photo>) => Promise<void>;
+  deletePhoto: (id: string) => Promise<void>;
+  deletePhotos: (ids: string[]) => Promise<void>;
   
   setSelectedPhoto: (photo: Photo | null) => void;
   togglePhotoSelection: (id: string) => void;
@@ -35,6 +37,9 @@ interface PhotoStore {
   clearUploadProgress: () => void;
   
   setLoading: (loading: boolean) => void;
+  
+  // Search
+  searchPhotos: (query: string) => Promise<Photo[]>;
 }
 
 export const usePhotoStore = create<PhotoStore>((set, get) => ({
@@ -49,29 +54,79 @@ export const usePhotoStore = create<PhotoStore>((set, get) => ({
   loading: false,
   
   // Actions
+  loadPhotos: async () => {
+    set({ loading: true });
+    try {
+      await photoDatabase.init();
+      const photos = await photoDatabase.getAllPhotos();
+      set({ photos, loading: false });
+    } catch (error) {
+      console.error('Failed to load photos:', error);
+      set({ loading: false });
+    }
+  },
+  
   setPhotos: (photos) => set({ photos }),
   
-  addPhotos: (photos) => set((state) => ({
-    photos: [...state.photos, ...photos]
-  })),
+  addPhotos: async (photos) => {
+    try {
+      await photoDatabase.addPhotos(photos);
+      set((state) => ({ photos: [...state.photos, ...photos] }));
+    } catch (error) {
+      console.error('Failed to add photos:', error);
+      // Still update UI optimistically
+      set((state) => ({ photos: [...state.photos, ...photos] }));
+    }
+  },
   
-  updatePhoto: (id, updates) => set((state) => ({
-    photos: state.photos.map(photo => 
-      photo.id === id ? { ...photo, ...updates } : photo
-    )
-  })),
+  updatePhoto: async (id, updates) => {
+    try {
+      await photoDatabase.updatePhoto(id, updates);
+      set((state) => ({
+        photos: state.photos.map(photo => 
+          photo.id === id ? { ...photo, ...updates } : photo
+        ),
+        selectedPhoto: state.selectedPhoto?.id === id 
+          ? { ...state.selectedPhoto, ...updates } 
+          : state.selectedPhoto
+      }));
+    } catch (error) {
+      console.error('Failed to update photo:', error);
+      // Still update UI optimistically
+      set((state) => ({
+        photos: state.photos.map(photo => 
+          photo.id === id ? { ...photo, ...updates } : photo
+        )
+      }));
+    }
+  },
   
-  deletePhoto: (id) => set((state) => ({
-    photos: state.photos.filter(photo => photo.id !== id),
-    selectedPhotos: new Set([...state.selectedPhotos].filter(photoId => photoId !== id)),
-    selectedPhoto: state.selectedPhoto?.id === id ? null : state.selectedPhoto
-  })),
+  deletePhoto: async (id) => {
+    try {
+      await photoDatabase.deletePhoto(id);
+      set((state) => ({
+        photos: state.photos.filter(photo => photo.id !== id),
+        selectedPhotos: new Set([...state.selectedPhotos].filter(photoId => photoId !== id)),
+        selectedPhoto: state.selectedPhoto?.id === id ? null : state.selectedPhoto
+      }));
+    } catch (error) {
+      console.error('Failed to delete photo:', error);
+    }
+  },
   
-  deletePhotos: (ids) => set((state) => ({
-    photos: state.photos.filter(photo => !ids.includes(photo.id)),
-    selectedPhotos: new Set([...state.selectedPhotos].filter(photoId => !ids.includes(photoId))),
-    selectedPhoto: ids.includes(state.selectedPhoto?.id || '') ? null : state.selectedPhoto
-  })),
+  deletePhotos: async (ids) => {
+    try {
+      // Delete each photo from database
+      await Promise.all(ids.map(id => photoDatabase.deletePhoto(id)));
+      set((state) => ({
+        photos: state.photos.filter(photo => !ids.includes(photo.id)),
+        selectedPhotos: new Set([...state.selectedPhotos].filter(photoId => !ids.includes(photoId))),
+        selectedPhoto: ids.includes(state.selectedPhoto?.id || '') ? null : state.selectedPhoto
+      }));
+    } catch (error) {
+      console.error('Failed to delete photos:', error);
+    }
+  },
   
   setSelectedPhoto: (photo) => set({ selectedPhoto: photo }),
   
@@ -117,5 +172,16 @@ export const usePhotoStore = create<PhotoStore>((set, get) => ({
   
   clearUploadProgress: () => set({ uploadProgress: [] }),
   
-  setLoading: (loading) => set({ loading })
+  setLoading: (loading) => set({ loading }),
+  
+  // Search
+  searchPhotos: async (query) => {
+    try {
+      const results = await photoDatabase.searchPhotos(query);
+      return results;
+    } catch (error) {
+      console.error('Search failed:', error);
+      return [];
+    }
+  },
 }));
