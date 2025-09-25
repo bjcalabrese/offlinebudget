@@ -6,6 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { Photos } from "./pages/Photos";
+import { Albums } from "./pages/Albums";
+import { Search } from "./pages/Search";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,8 +27,8 @@ const App: React.FC = () => (
           <Routes>
             <Route path="/" element={<Navigate to="/photos" replace />} />
             <Route path="/photos" element={<Photos />} />
-            <Route path="/albums" element={<Photos />} />
-            <Route path="/search" element={<Photos />} />
+            <Route path="/albums" element={<Albums />} />
+            <Route path="/search" element={<Search />} />
             <Route path="/timeline" element={<Photos />} />
             <Route path="/favorites" element={<Photos />} />
             <Route path="/liked" element={<Photos />} />
