@@ -71,3 +71,33 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  /* Photo Grid Components */
+  .photo-grid-item {
+    @apply aspect-square overflow-hidden rounded-lg bg-muted;
+  }
+  
+  .photo-grid-image {
+    @apply w-full h-full object-cover transition-all duration-300;
+  }
+  
+  /* Responsive photo grid breakpoints */
+  @media (min-width: 640px) {
+    .photo-grid-container {
+      @apply gap-3;
+    }
+  }
+  
+  @media (min-width: 768px) {
+    .photo-grid-container {
+      @apply gap-4;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .photo-grid-container {
+      @apply gap-4;
+    }
+  }
+}

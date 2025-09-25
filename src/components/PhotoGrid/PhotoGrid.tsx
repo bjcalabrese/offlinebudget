@@ -17,15 +17,30 @@ export const PhotoGrid: React.FC<PhotoGridProps> = ({ photos, className }) => {
   const { gridSize, selectedPhotos, setSelectedPhoto } = usePhotoStore();
   const { isSelectionMode, openPhotoViewer } = useUIStore();
 
-  // Calculate grid dimensions based on grid size
+  // Calculate grid dimensions based on grid size with responsive breakpoints
   const gridDimensions = useMemo(() => {
     switch (gridSize) {
       case 'small':
-        return { itemSize: 150, gap: 8 };
+        return { 
+          itemSize: 150, 
+          gap: 8,
+          minColumns: 3,
+          maxColumns: 12
+        };
       case 'large':
-        return { itemSize: 300, gap: 16 };
+        return { 
+          itemSize: 300, 
+          gap: 16,
+          minColumns: 1,
+          maxColumns: 6
+        };
       default: // medium
-        return { itemSize: 200, gap: 12 };
+        return { 
+          itemSize: 200, 
+          gap: 12,
+          minColumns: 2,
+          maxColumns: 8
+        };
     }
   }, [gridSize]);
 
@@ -39,12 +54,29 @@ export const PhotoGrid: React.FC<PhotoGridProps> = ({ photos, className }) => {
     openPhotoViewer();
   }, [isSelectionMode, setSelectedPhoto, openPhotoViewer]);
 
-  // Calculate columns based on container width
+  // Calculate columns based on container width with responsive breakpoints
   const getColumnCount = useCallback((width: number) => {
-    const minColumns = 2;
-    const maxColumns = 8;
-    const columns = Math.floor((width - 32) / (gridDimensions.itemSize + gridDimensions.gap));
-    return Math.max(minColumns, Math.min(maxColumns, columns));
+    const { itemSize, gap, minColumns, maxColumns } = gridDimensions;
+    
+    // Responsive breakpoint calculations
+    let targetColumns;
+    if (width < 640) { // sm breakpoint
+      targetColumns = minColumns;
+    } else if (width < 768) { // md breakpoint
+      targetColumns = Math.min(minColumns + 1, maxColumns);
+    } else if (width < 1024) { // lg breakpoint
+      targetColumns = Math.min(minColumns + 2, maxColumns);
+    } else if (width < 1280) { // xl breakpoint
+      targetColumns = Math.min(minColumns + 3, maxColumns);
+    } else { // 2xl breakpoint
+      targetColumns = maxColumns;
+    }
+    
+    // Calculate optimal columns based on available space
+    const availableColumns = Math.floor((width - 32) / (itemSize + gap));
+    
+    // Use the smaller of target responsive columns or available space
+    return Math.max(minColumns, Math.min(targetColumns, availableColumns));
   }, [gridDimensions]);
 
   // Grid cell renderer
