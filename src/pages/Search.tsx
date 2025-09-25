@@ -17,7 +17,7 @@ import {
 import { cn } from '@/lib/utils';
 
 export const Search: React.FC = () => {
-  const { photos, filter, setFilter } = usePhotoStore();
+  const { photos, filter, setFilter, setPhotos } = usePhotoStore();
   const [searchQuery, setSearchQuery] = useState(filter.search || '');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -25,6 +25,94 @@ export const Search: React.FC = () => {
     from: '',
     to: ''
   });
+
+  // Load mock photos if not already loaded
+  useEffect(() => {
+    if (photos.length === 0) {
+      // Import the same mock photos as Photos page
+      const mockPhotos = [
+        {
+          id: '1',
+          filename: 'sunset-beach.jpg',
+          url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgICA8cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI0ZGNkI2QiIvPiAgICAgIDx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBhbGlnbm1lbnQtYmFzZWxpbmU9Im1pZGRsZSI+U3Vuc2V0IEJlYWNoPC90ZXh0PiAgICA8L3N2Zz4=',
+          thumbnailUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgICA8cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI0ZGNkI2QiIvPiAgICAgIDx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBhbGlnbm1lbnQtYmFzZWxpbmU9Im1pZGRsZSI+U3Vuc2V0IEJlYWNoPC90ZXh0PiAgICA8L3N2Zz4=',
+          size: 2048000,
+          dimensions: { width: 4000, height: 3000 },
+          createdAt: new Date('2024-01-15'),
+          takenAt: new Date('2024-01-15'),
+          tags: ['sunset', 'beach', 'nature'],
+          albumIds: [],
+          isFavorite: true
+        },
+        {
+          id: '2',
+          filename: 'mountain-lake.jpg',
+          url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgICA8cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iIzRFQ0RDNCI+PC9yZWN0PiAgICAgIDx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBhbGlnbm1lbnQtYmFzZWxpbmU9Im1pZGRsZSI+TW91bnRhaW4gTGFrZTwvdGV4dD4gICAgPC9zdmc+',
+          thumbnailUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgICA8cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iIzRFQ0RDNCI+PC9yZWN0PiAgICAgIDx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBhbGlnbm1lbnQtYmFzZWxpbmU9Im1pZGRsZSI+TW91bnRhaW4gTGFrZTwvdGV4dD4gICAgPC9zdmc+',
+          size: 1856000,
+          dimensions: { width: 3840, height: 2560 },
+          createdAt: new Date('2024-01-14'),
+          takenAt: new Date('2024-01-14'),
+          tags: ['mountain', 'lake', 'landscape'],
+          albumIds: [],
+          isFavorite: false
+        },
+        {
+          id: '3',
+          filename: 'city-night.jpg',
+          url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgICA8cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iIzQ1QjdEMSI+PC9yZWN0PiAgICAgIDx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBhbGlnbm1lbnQtYmFzZWxpbmU9Im1pZGRsZSI+Q2l0eSBOaWdodDwvdGV4dD4gICAgPC9zdmc+',
+          thumbnailUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgICA8cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iIzQ1QjdEMSI+PC9yZWN0PiAgICAgIDx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBhbGlnbm1lbnQtYmFzZWxpbmU9Im1pZGRsZSI+Q2l0eSBOaWdodDwvdGV4dD4gICAgPC9zdmc+',
+          size: 2240000,
+          dimensions: { width: 4200, height: 2800 },
+          createdAt: new Date('2024-01-13'),
+          takenAt: new Date('2024-01-13'),
+          tags: ['city', 'night', 'urban'],
+          albumIds: [],
+          isFavorite: false
+        },
+        {
+          id: '4',
+          filename: 'forest-path.jpg',
+          url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgICA8cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iIzk2Q0VCNCI+PC9yZWN0PiAgICAgIDx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBhbGlnbm1lbnQtYmFzZWxpbmU9Im1pZGRsZSI+Rm9yZXN0IFBhdGg8L3RleHQ+ICAgIDwvc3ZnPg==',
+          thumbnailUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgICA8cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iIzk2Q0VCNCI+PC9yZWN0PiAgICAgIDx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBhbGlnbm1lbnQtYmFzZWxpbmU9Im1pZGRsZSI+Rm9yZXN0IFBhdGg8L3RleHQ+ICAgIDwvc3ZnPg==',
+          size: 1920000,
+          dimensions: { width: 3600, height: 2400 },
+          createdAt: new Date('2024-01-12'),
+          takenAt: new Date('2024-01-12'),
+          tags: ['forest', 'path', 'nature'],
+          albumIds: [],
+          isFavorite: true
+        },
+        {
+          id: '5',
+          filename: 'ocean-waves.jpg',
+          url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgICA8cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iIzc0QjlGRiI+PC9yZWN0PiAgICAgIDx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBhbGlnbm1lbnQtYmFzZWxpbmU9Im1pZGRsZSI+T2NlYW4gV2F2ZXM8L3RleHQ+ICAgIDwvc3ZnPg==',
+          thumbnailUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgICA8cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iIzc0QjlGRiI+PC9yZWN0PiAgICAgIDx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBhbGlnbm1lbnQtYmFzZWxpbmU9Im1pZGRsZSI+T2NlYW4gV2F2ZXM8L3RleHQ+ICAgIDwvc3ZnPg==',
+          size: 2304000,
+          dimensions: { width: 4000, height: 3000 },
+          createdAt: new Date('2024-01-11'),
+          takenAt: new Date('2024-01-11'),
+          tags: ['ocean', 'waves', 'water'],
+          albumIds: [],
+          isFavorite: false
+        },
+        {
+          id: '6',
+          filename: 'desert-dunes.jpg',
+          url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgICA8cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI0ZEQ0I2RSI+PC9yZWN0PiAgICAgIDx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBhbGlnbm1lbnQtYmFzZWxpbmU9Im1pZGRsZSI+RGVzZXJ0IER1bmVzPC90ZXh0PiAgICA8L3N2Zz4=',
+          thumbnailUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4gICAgICA8cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI0ZEQ0I2RSI+PC9yZWN0PiAgICAgIDx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBhbGlnbm1lbnQtYmFzZWxpbmU9Im1pZGRsZSI+RGVzZXJ0IER1bmVzPC90ZXh0PiAgICA8L3N2Zz4=',
+          size: 2112000,
+          dimensions: { width: 3800, height: 2533 },
+          createdAt: new Date('2024-01-10'),
+          takenAt: new Date('2024-01-10'),
+          tags: ['desert', 'sand', 'landscape'],
+          albumIds: [],
+          isFavorite: false
+        }
+      ];
+      setPhotos(mockPhotos);
+    }
+  }, [photos.length, setPhotos]);
 
   // Update store filter when search changes
   useEffect(() => {
