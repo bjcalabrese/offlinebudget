@@ -217,6 +217,5 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
           console.error('Failed to delete saved search:', error);
         }
       },
-    }),
-  }
+    }
 ));
