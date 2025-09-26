@@ -7,7 +7,7 @@ import { UploadModal } from '@/components/Upload/UploadModal';
 import { usePhotoStore } from '@/store/photoStore';
 import { Photo } from '@/types/photo';
 
-// Mock data for demonstration - in a real app, this would come from an API
+// Mock data for demonstration - in a real app, this would come from IndexedDB
 const mockPhotos: Photo[] = [
   {
     id: '1',
@@ -17,9 +17,23 @@ const mockPhotos: Photo[] = [
     size: 2048000,
     dimensions: { width: 4000, height: 3000 },
     createdAt: new Date('2024-01-15'),
+    uploadedAt: new Date('2024-01-15'),
     takenAt: new Date('2024-01-15'),
     tags: ['sunset', 'beach', 'nature'],
     albumIds: [],
+    metadata: {
+      exif: {
+        make: 'Canon',
+        model: 'EOS R5',
+        fNumber: 8,
+        exposureTime: 1/125,
+        iso: 100
+      },
+      location: {
+        latitude: 34.0522,
+        longitude: -118.2437
+      }
+    },
     isFavorite: true
   },
   {
@@ -30,9 +44,16 @@ const mockPhotos: Photo[] = [
     size: 1856000,
     dimensions: { width: 3840, height: 2560 },
     createdAt: new Date('2024-01-14'),
+    uploadedAt: new Date('2024-01-14'),
     takenAt: new Date('2024-01-14'),
     tags: ['mountain', 'lake', 'landscape'],
     albumIds: [],
+    metadata: {
+      exif: {
+        make: 'Sony',
+        model: 'A7R IV'
+      }
+    },
     isFavorite: false
   },
   {
@@ -43,9 +64,16 @@ const mockPhotos: Photo[] = [
     size: 2240000,
     dimensions: { width: 4200, height: 2800 },
     createdAt: new Date('2024-01-13'),
+    uploadedAt: new Date('2024-01-13'),
     takenAt: new Date('2024-01-13'),
     tags: ['city', 'night', 'urban'],
     albumIds: [],
+    metadata: {
+      exif: {
+        make: 'Nikon',
+        model: 'D850'
+      }
+    },
     isFavorite: false
   },
   {
@@ -56,9 +84,11 @@ const mockPhotos: Photo[] = [
     size: 1920000,
     dimensions: { width: 3600, height: 2400 },
     createdAt: new Date('2024-01-12'),
+    uploadedAt: new Date('2024-01-12'),
     takenAt: new Date('2024-01-12'),
     tags: ['forest', 'path', 'nature'],
     albumIds: [],
+    metadata: {},
     isFavorite: true
   },
   {
@@ -69,9 +99,11 @@ const mockPhotos: Photo[] = [
     size: 2304000,
     dimensions: { width: 4000, height: 3000 },
     createdAt: new Date('2024-01-11'),
+    uploadedAt: new Date('2024-01-11'),
     takenAt: new Date('2024-01-11'),
     tags: ['ocean', 'waves', 'water'],
     albumIds: [],
+    metadata: {},
     isFavorite: false
   },
   {
@@ -82,20 +114,30 @@ const mockPhotos: Photo[] = [
     size: 2112000,
     dimensions: { width: 3800, height: 2533 },
     createdAt: new Date('2024-01-10'),
+    uploadedAt: new Date('2024-01-10'),
     takenAt: new Date('2024-01-10'),
     tags: ['desert', 'sand', 'landscape'],
     albumIds: [],
+    metadata: {},
     isFavorite: false
   }
 ];
 
 export const Photos: React.FC = () => {
-  const { photos, setPhotos, filter, loading } = usePhotoStore();
+  const { photos, loadPhotos, addPhotos, filter, loading } = usePhotoStore();
 
-  // Initialize with mock data
+  // Initialize and load photos from IndexedDB
   useEffect(() => {
-    setPhotos(mockPhotos);
-  }, [setPhotos]);
+    const initializePhotos = async () => {
+      await loadPhotos();
+      // If no photos exist, seed with mock data
+      if (photos.length === 0) {
+        await addPhotos(mockPhotos);
+      }
+    };
+    
+    initializePhotos();
+  }, [loadPhotos, addPhotos]);
 
   // Filter photos based on current filter
   const filteredPhotos = useMemo(() => {

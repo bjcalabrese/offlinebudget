@@ -19,22 +19,32 @@ export interface ExifData {
   flash?: boolean;
 }
 
+export interface PhotoMetadata {
+  exif?: ExifData;
+  location?: Coordinates;
+  keywords?: string[];
+  description?: string;
+  rating?: number;
+}
+
 export interface Photo {
   id: string;
   filename: string;
   url: string;
   thumbnailUrl: string;
+  fileBlob?: Blob; // For local storage
+  thumbnailBlob?: Blob;
   size: number;
   dimensions: { 
     width: number; 
     height: number; 
   };
   createdAt: Date;
+  uploadedAt: Date;
   takenAt?: Date;
-  location?: Coordinates;
-  exif?: ExifData;
-  tags: string[];
   albumIds: string[];
+  tags: string[];
+  metadata: PhotoMetadata;
   isFavorite: boolean;
 }
 
@@ -57,4 +67,28 @@ export interface UploadProgress {
   progress: number;
   status: 'uploading' | 'processing' | 'completed' | 'error';
   error?: string;
+}
+
+export interface UploadRecord {
+  id: string;
+  filename: string;
+  uploadedAt: Date;
+  size: number;
+  albumIds: string[];
+  status: 'success' | 'failed';
+  error?: string;
+}
+
+export interface ThumbnailSet {
+  small: Blob;   // 150x150
+  medium: Blob;  // 300x300  
+  large: Blob;   // 600x600
+}
+
+export interface StorageInfo {
+  totalSize: number;
+  photoCount: number;
+  thumbnailSize: number;
+  metadataSize: number;
+  availableSpace?: number;
 }
