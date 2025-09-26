@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { Album, AlbumSortBy, SortDirection } from '@/types/album';
+import { photoDatabase } from '@/services/database';
 
 interface AlbumStore {
   // State
@@ -10,10 +11,11 @@ interface AlbumStore {
   loading: boolean;
   
   // Actions
+  loadAlbums: () => Promise<void>;
   setAlbums: (albums: Album[]) => void;
-  addAlbum: (album: Album) => void;
-  updateAlbum: (id: string, updates: Partial<Album>) => void;
-  deleteAlbum: (id: string) => void;
+  addAlbum: (album: Album) => Promise<void>;
+  updateAlbum: (id: string, updates: Partial<Album>) => Promise<void>;
+  deleteAlbum: (id: string) => Promise<void>;
   
   setSelectedAlbum: (album: Album | null) => void;
   
@@ -35,25 +37,67 @@ export const useAlbumStore = create<AlbumStore>((set, get) => ({
   loading: false,
   
   // Actions
+  loadAlbums: async () => {
+    set({ loading: true });
+    try {
+      await photoDatabase.init();
+      const albums = await photoDatabase.getAllAlbums();
+      set({ albums, loading: false });
+    } catch (error) {
+      console.error('Failed to load albums:', error);
+      set({ loading: false });
+    }
+  },
+  
   setAlbums: (albums) => set({ albums }),
   
-  addAlbum: (album) => set((state) => ({
-    albums: [...state.albums, album]
-  })),
+  addAlbum: async (album) => {
+    try {
+      await photoDatabase.addAlbum(album);
+      set((state) => ({ albums: [...state.albums, album] }));
+    } catch (error) {
+      console.error('Failed to add album:', error);
+      // Still update UI optimistically
+      set((state) => ({ albums: [...state.albums, album] }));
+    }
+  },
   
-  updateAlbum: (id, updates) => set((state) => ({
-    albums: state.albums.map(album => 
-      album.id === id ? { ...album, ...updates } : album
-    ),
-    selectedAlbum: state.selectedAlbum?.id === id 
-      ? { ...state.selectedAlbum, ...updates } 
-      : state.selectedAlbum
-  })),
+  updateAlbum: async (id, updates) => {
+    try {
+      await photoDatabase.updateAlbum(id, updates);
+      set((state) => ({
+        albums: state.albums.map(album => 
+          album.id === id ? { ...album, ...updates } : album
+        ),
+        selectedAlbum: state.selectedAlbum?.id === id 
+          ? { ...state.selectedAlbum, ...updates } 
+          : state.selectedAlbum
+      }));
+    } catch (error) {
+      console.error('Failed to update album:', error);
+      // Still update UI optimistically
+      set((state) => ({
+        albums: state.albums.map(album => 
+          album.id === id ? { ...album, ...updates } : album
+        ),
+        selectedAlbum: state.selectedAlbum?.id === id 
+          ? { ...state.selectedAlbum, ...updates } 
+          : state.selectedAlbum
+      }));
+    }
+  },
   
-  deleteAlbum: (id) => set((state) => ({
-    albums: state.albums.filter(album => album.id !== id),
-    selectedAlbum: state.selectedAlbum?.id === id ? null : state.selectedAlbum
-  })),
+  deleteAlbum: async (id) => {
+    try {
+      await photoDatabase.deleteAlbum(id);
+      set((state) => ({
+        albums: state.albums.filter(album => album.id !== id),
+        selectedAlbum: state.selectedAlbum?.id === id ? null : state.selectedAlbum
+      }));
+    } catch (error) {
+      console.error('Failed to delete album:', error);
+    }
+  },
   
   setSelectedAlbum: (album) => set({ selectedAlbum: album }),
   
