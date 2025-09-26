@@ -129,10 +129,16 @@ export const Photos: React.FC = () => {
   // Initialize and load photos from IndexedDB
   useEffect(() => {
     const initializePhotos = async () => {
-      await loadPhotos();
-      // If no photos exist, seed with mock data
-      if (photos.length === 0) {
-        await addPhotos(mockPhotos);
+      try {
+        await loadPhotos();
+        // Check if we need to seed with mock data after loading
+        const currentPhotos = usePhotoStore.getState().photos;
+        if (currentPhotos.length === 0) {
+          console.log('No photos found, seeding with mock data');
+          await addPhotos(mockPhotos);
+        }
+      } catch (error) {
+        console.error('Failed to initialize photos:', error);
       }
     };
     
